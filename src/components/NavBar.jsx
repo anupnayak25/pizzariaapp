@@ -1,7 +1,7 @@
 import React from "react";
 import { LogIn, ShoppingCart } from "lucide-react";
 import logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { clearCart } from "../redux/cartSlice";
@@ -10,6 +10,7 @@ function NavBar() {
   const user = useSelector((state) => state.user.currentUser);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const cartCount = useSelector((state) => state.cart.totalQuantity);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   return (
     <div className="z-0">
@@ -38,7 +39,7 @@ function NavBar() {
             {isLoggedIn ? (
               <div className="flex space-x-3 items-center text-center">
                 <p>Hello, {user.name}</p>
-                <button className="bg-white/20 border-2 border-white p-1.5 px-4 mx-2" onClick={() =>{ dispatch(logout());   dispatch(clearCart());}}>Logout</button>
+                <button className="bg-white/20 border-2 border-white p-1.5 px-4 mx-2" onClick={() =>{ dispatch(logout());   dispatch(clearCart()); navigate('/'); }}>Logout</button>
                 <Link to="/cart">
                   <button className=" relative bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded flex items-center gap-2">
                     {cartCount > 0 && (

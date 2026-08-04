@@ -10,18 +10,18 @@ const PizzaCard = ({ pizza }) => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const navigate = useNavigate();
 
-  const checkLogIn=()=>{
-    if(!isLoggedIn){
-      const ans =confirm("Please SignIn to Countinue...!");
-      if(ans){
+  const checkLogIn = () => {
+    if (!isLoggedIn) {
+      const ans = confirm("Please SignIn to Countinue...!");
+      if (ans) {
         navigate("/signin", {
-  state: { from: location.pathname },
-});
+          state: { from: location.pathname },
+        });
       }
       return;
     }
     setShowModel(true);
-  }
+  };
 
   const dispatch = useDispatch();
   return (
@@ -89,7 +89,7 @@ const PizzaCard = ({ pizza }) => {
             ₹{pizza.price}
           </h3>
           <button
-            onClick={() =>checkLogIn()}
+            onClick={() => checkLogIn()}
             className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold transition"
           >
             Add to Cart
@@ -101,12 +101,18 @@ const PizzaCard = ({ pizza }) => {
           className="fixed inset-0 z-10 bg-black/50 flex justify-center items-center"
           onClick={() => setShowModel(false)}
         >
-         
           <div
             className="relative bg-white w-1/3 rounded-xl text-lg flex-col justify-center space-y-5 p-8 text-center"
             onClick={(e) => e.stopPropagation()}
           >
-             <div className="absolute top-0.5 right-0.5 text-red-600 cursor-pointer" onClick={()=>{setShowModel(false)}}><X/></div>
+            <div
+              className="absolute top-0.5 right-0.5 text-red-600 cursor-pointer"
+              onClick={() => {
+                setShowModel(false);
+              }}
+            >
+              <X />
+            </div>
             <h3 className="text-2xl font-bold">{pizza.name}</h3>
             <p className="text-gray-500 mt-1">
               Select quantity or customize your pizza.
@@ -132,14 +138,24 @@ const PizzaCard = ({ pizza }) => {
             </div>
             <Link
               to={`/build-pizza/`}
-              state={ {pizzaId: pizza.id }}
+              state={{ pizzaId: pizza.id }}
               className="text-orange-500 hover:underline"
             >
               <p>Customise this pizza...</p>
             </Link>
             <button
               onClick={() => {
-                dispatch(addItem({ ...pizza, quantity }));
+                dispatch(
+                  addItem({
+                    id: pizza.id,
+                    name: pizza.name,
+                    image: pizza.image,
+                    ingredients: pizza.ingredients ?? [],
+                    toppings: pizza.topping ?? pizza.toppings ?? [],
+                    price: pizza.price,
+                    quantity,
+                  }),
+                );
                 setShowModel(false);
               }}
               className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold transition"

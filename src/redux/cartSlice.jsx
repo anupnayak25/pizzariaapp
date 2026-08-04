@@ -21,10 +21,13 @@ const calculateTotals = (state) => {
 };
 
 const isSamePizza = (item1, item2) => {
+  // Compare by id and toppings (support legacy where toppings may be stored in `ingredients`)
+  const toppingsA = item1.toppings ?? item1.ingredients ?? [];
+  const toppingsB = item2.toppings ?? item2.ingredients ?? [];
   return (
     item1.id === item2.id &&
-    JSON.stringify([...item1.ingredients].sort()) ===
-      JSON.stringify([...item2.ingredients].sort())
+    JSON.stringify([...toppingsA].sort()) ===
+      JSON.stringify([...toppingsB].sort())
   );
 };
 
@@ -35,15 +38,22 @@ const cartSlice = createSlice({
     addItem(state, action) {
       const newPizza = action.payload;
 
+      // Normalize payload: ensure `ingredients` (base) and `toppings` (selected extras) exist.
+      const normalized = {
+        ...newPizza,
+        ingredients: newPizza.ingredients ?? [],
+        toppings: newPizza.toppings ?? newPizza.topping ?? [],
+      };
+
       const existingPizza = state.cartItems.find((item) =>
-        isSamePizza(item, newPizza),
+        isSamePizza(item, normalized),
       );
 
       if (existingPizza) {
         existingPizza.quantity += 1;
       } else {
         state.cartItems.push({
-          ...newPizza,
+          ...normalized,
           cart_id: "C0" + counter,
         });
         counter++;
@@ -83,11 +93,12 @@ const cartSlice = createSlice({
       calculateTotals(state);
     },
     modifyIngredients(state, action) {
-      const { id, ingredients, price } = action.payload;
+      // payload: { id: cart_id, toppings: [...], price }
+      const { id, toppings, price } = action.payload;
       const item = state.cartItems.find((item) => item.cart_id === id);
       if (!item) return;
-      item.ingredients = ingredients;
-      item.price = price; // ingredients changed price, so update it
+      item.toppings = toppings;
+      item.price = price; // toppings changed price, so update it
       calculateTotals(state);
     },
     clearCart(state) {

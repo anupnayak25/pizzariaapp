@@ -67,6 +67,7 @@ export function Signin() {
             }}
             value={formData.email}
             placeholder="Enter your Email"
+            required
           />
           <input
             name="password"
@@ -77,6 +78,7 @@ export function Signin() {
             }}
             value={formData.password}
             placeholder="Enter your Password"
+            required
           />
           <div className="mt-2">
             <button
@@ -171,6 +173,7 @@ export function Signup() {
             }}
             value={formData.email}
             placeholder="Enter your Email"
+            required
           />
           <input
             name="phone"
@@ -181,6 +184,7 @@ export function Signup() {
             }}
             value={formData.phone}
             placeholder="Enter your Phone no."
+            required
           />
           <input
             name="password"
@@ -191,6 +195,7 @@ export function Signup() {
             }}
             value={formData.password}
             placeholder="Enter your Password"
+            required    
           />
           <input
             name="confirmPassword"
@@ -201,6 +206,7 @@ export function Signup() {
             }}
             value={formData.confirmPassword}
             placeholder="Confirm your Password"
+            required
           />
           <div className="mt-2">
             <button

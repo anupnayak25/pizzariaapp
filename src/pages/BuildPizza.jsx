@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import pizzas from "../data/pizzzaData.json";
 import ingredientsData from "../data/ingredientsData.json";
 import { addItem, modifyIngredients } from "../redux/cartSlice";
+import { ArrowLeft } from "lucide-react";
 
 const STEPS = ["Choose Base", "Customize", "Review & Confirm"];
 
@@ -42,9 +43,8 @@ function StepIndicator({ step }) {
 }
 
 function BuildPizza() {
-
-   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
-   const navigate = useNavigate();
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -59,7 +59,7 @@ function BuildPizza() {
 
   useEffect(() => {
     if (cartId) {
-      // Came from cart -> load exact saved state, edit in place
+      // user came from cart load exact data
       const cartItem = cartItems.find((item) => item.cart_id === cartId);
       if (cartItem) {
         const pizza = pizzas.find((p) => p.id === cartItem.id);
@@ -69,7 +69,7 @@ function BuildPizza() {
         setStep(2);
       }
     } else if (navPizzaId) {
-      // Came from order page -> preselect the pizza's default toppings
+      // user came from order page preselect the default toppings
       const pizza = pizzas.find((p) => p.id === navPizzaId);
       if (pizza) {
         setSelectedPizza(pizza);
@@ -80,13 +80,15 @@ function BuildPizza() {
   }, []);
 
   const handleSelectPizza = (pizza) => {
- if(!isLoggedIn){
-      const ans =confirm("Please SignIn to Countinue...!");
-      if(ans){
+    if (!isLoggedIn) {
+      const ans = confirm("Please SignIn to Countinue...!");
+      if (ans) {
         navigate("/signin", {
-  state: { from: location.pathname },
-});
-}return;}
+          state: { from: location.pathname },
+        });
+      }
+      return;
+    }
     setSelectedPizza(pizza);
     setSelectedIngredients(pizza.topping);
     setStep(2);
@@ -116,7 +118,7 @@ function BuildPizza() {
       dispatch(
         modifyIngredients({
           id: editingCartId,
-         ingredients: selectedIngredients,
+          toppings: selectedIngredients,
           price: totalPrice,
         }),
       );
@@ -126,22 +128,35 @@ function BuildPizza() {
           id: selectedPizza.id,
           name: selectedPizza.name,
           image: selectedPizza.image,
-          ingredients: selectedIngredients,
+          ingredients: selectedPizza.ingredients,
+          toppings: selectedIngredients,
           price: totalPrice,
           quantity: 1,
         }),
       );
     }
-    if(confirm("Order added to the Cart Successfully!!! \n Do want to view your cart?",)){
-navigate("/cart");
-    }else{
-    navigate("/");}
+    if (
+      confirm(
+        "Order added to the Cart Successfully!!! \n Do want to view your cart?",
+      )
+    ) {
+      navigate("/cart");
+    } else {
+      navigate("/");
+    }
   };
 
   const cameFromElsewhere = Boolean(cartId || navPizzaId);
 
   return (
-    <div className=" mx-auto px-4">
+    <div className=" relative mx-auto px-4">
+      {(navPizzaId || cartId) && (
+        <Link to={cartId ? "/cart" : "/order"}>
+          <div className="absolute top-2 left-2 p-1 px-2 rounded-lg border-2 border-amber-600 flex text-amber-600">
+            <ArrowLeft /> back
+          </div>
+        </Link>
+      )}
       <StepIndicator step={step} />
 
       {step === 1 && (
@@ -184,7 +199,27 @@ navigate("/cart");
               {selectedPizza.ingredients.join(", ")}
             </div>
           )}
-
+          <div className="flex justify-between items-center py-8">
+            {!cameFromElsewhere ? (
+              <button
+                className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+                onClick={() => setStep(1)}
+              >
+                ← Back
+              </button>
+            ) : (
+              <span />
+            )}
+            <p className="font-semibold text-lg">
+              Running total: ₹{totalPrice}
+            </p>
+            <button
+              className="px-5 py-2 rounded-lg bg-amber-500 text-white font-medium hover:bg-amber-600"
+              onClick={() => setStep(3)}
+            >
+              Review →
+            </button>
+          </div>
           <div className="flex justify-around flex-wrap gap-4">
             {ingredientsData.map((ing) => {
               const isSelected = selectedIngredients.includes(ing.tname);
@@ -211,28 +246,6 @@ navigate("/cart");
                 </div>
               );
             })}
-          </div>
-
-          <div className="flex justify-between items-center py-8">
-            {!cameFromElsewhere ? (
-              <button
-                className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-                onClick={() => setStep(1)}
-              >
-                ← Back
-              </button>
-            ) : (
-              <span />
-            )}
-            <p className="font-semibold text-lg">
-              Running total: ₹{totalPrice}
-            </p>
-            <button
-              className="px-5 py-2 rounded-lg bg-amber-500 text-white font-medium hover:bg-amber-600"
-              onClick={() => setStep(3)}
-            >
-              Review →
-            </button>
           </div>
         </>
       )}

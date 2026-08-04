@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
   currentUser:
@@ -7,7 +8,6 @@ const initialState = {
   isLoggedIn:
     !!sessionStorage.getItem("currentUser"),
 };
-
 const userSlice = createSlice({
   name: "user",
 
@@ -27,7 +27,6 @@ const userSlice = createSlice({
     logout(state) {
       state.currentUser = null;
       state.isLoggedIn = false;
-
       sessionStorage.removeItem("currentUser");
     },
 
